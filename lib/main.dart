@@ -2,10 +2,12 @@ import 'package:countup/screen/home_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const RootRestorationScope(
-    restorationId: 'root',
-    child: MainApp(),
-  ));
+  runApp(
+    const RootRestorationScope(
+      restorationId: 'root',
+      child: MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {

@@ -9,24 +9,25 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with RestorationMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with RestorationMixin<HomeScreen> {
   late Timer timer;
   late DateTime currTime;
-  final RestorableDateTime setTime = RestorableDateTime(DateTime.now());
-  final RestorableInt timeDiff = RestorableInt(0);
-  final RestorableInt s = RestorableInt(0);
-  final RestorableInt m = RestorableInt(0);
-  final RestorableInt h = RestorableInt(0);
-  final RestorableInt d = RestorableInt(0);
-  final RestorableInt ls = RestorableInt(0);
-  final RestorableInt lm = RestorableInt(0);
-  final RestorableInt lh = RestorableInt(0);
-  final RestorableInt ld = RestorableInt(0);
+  final RestorableDateTime _setTime = RestorableDateTime(DateTime.now());
+  final RestorableInt _timeDiff = RestorableInt(0);
+  final RestorableInt _s = RestorableInt(0);
+  final RestorableInt _m = RestorableInt(0);
+  final RestorableInt _h = RestorableInt(0);
+  final RestorableInt _d = RestorableInt(0);
+  final RestorableInt _ls = RestorableInt(0);
+  final RestorableInt _lm = RestorableInt(0);
+  final RestorableInt _lh = RestorableInt(0);
+  final RestorableInt _ld = RestorableInt(0);
 
   @override
   void initState() {
     super.initState();
-    setTime.value = DateTime.now();
+    _setTime.value = DateTime.now();
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _update();
     });
@@ -34,21 +35,21 @@ class _HomeScreenState extends State<HomeScreen> with RestorationMixin {
 
   void _update() {
     setState(() {
-      timeDiff.value = timeBetweenInSeconds(setTime.value, DateTime.now());
-      var canIncrement = timeDiff.value % 61 == 60;
-      s.value = timeDiff.value % 60;
+      _timeDiff.value = timeBetweenInSeconds(_setTime.value, DateTime.now());
+      var canIncrement = _timeDiff.value % 61 == 60;
+      _s.value = _timeDiff.value % 60;
       if (canIncrement) {
-        if (m.value < 59) {
-          m.value += 1;
+        if (_m.value < 59) {
+          _m.value += 1;
           return;
         }
-        m.value = 0;
-        if (h.value < 23) {
-          h.value += 1;
+        _m.value = 0;
+        if (_h.value < 23) {
+          _h.value += 1;
           return;
         }
-        h.value = 0;
-        d.value += 1;
+        _h.value = 0;
+        _d.value += 1;
       }
     });
   }
@@ -62,29 +63,13 @@ class _HomeScreenState extends State<HomeScreen> with RestorationMixin {
 
   void _updateSetTime() {
     setState(() {
-      ls.value = s.value;
-      lm.value = m.value;
-      lh.value = h.value;
-      ld.value = d.value;
-      setTime.value = DateTime.now();
-      m.value = h.value = d.value = 0;
+      _ls.value = _s.value;
+      _lm.value = _m.value;
+      _lh.value = _h.value;
+      _ld.value = _d.value;
+      _setTime.value = DateTime.now();
+      _m.value = _h.value = _d.value = 0;
     });
-  }
-
-  @override
-  void dispose() {
-    s.dispose();
-    m.dispose();
-    h.dispose();
-    d.dispose();
-    ls.dispose();
-    lm.dispose();
-    lh.dispose();
-    ld.dispose();
-
-    timeDiff.dispose();
-    setTime.dispose();
-    super.dispose();
   }
 
   @override
@@ -92,16 +77,32 @@ class _HomeScreenState extends State<HomeScreen> with RestorationMixin {
 
   @override
   void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    registerForRestoration(s, 'second');
-    registerForRestoration(m, 'minute');
-    registerForRestoration(h, 'hour');
-    registerForRestoration(d, 'day');
-    registerForRestoration(ls, 'lastSecond');
-    registerForRestoration(lm, 'lastMinute');
-    registerForRestoration(lh, 'lastHour');
-    registerForRestoration(ld, 'lastDay');
-    registerForRestoration(timeDiff, 'timeDiff');
-    registerForRestoration(setTime, 'setTime');
+    registerForRestoration(_s, 'second');
+    registerForRestoration(_m, 'minute');
+    registerForRestoration(_h, 'hour');
+    registerForRestoration(_d, 'day');
+    registerForRestoration(_ls, 'lastSecond');
+    registerForRestoration(_lm, 'lastMinute');
+    registerForRestoration(_lh, 'lastHour');
+    registerForRestoration(_ld, 'lastDay');
+    registerForRestoration(_timeDiff, 'timeDiff');
+    registerForRestoration(_setTime, 'setTime');
+  }
+
+  @override
+  void dispose() {
+    _s.dispose();
+    _m.dispose();
+    _h.dispose();
+    _d.dispose();
+    _ls.dispose();
+    _lm.dispose();
+    _lh.dispose();
+    _ld.dispose();
+
+    _timeDiff.dispose();
+    _setTime.dispose();
+    super.dispose();
   }
 
   @override
@@ -122,13 +123,13 @@ class _HomeScreenState extends State<HomeScreen> with RestorationMixin {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Current Streak: ${d.value}d ${h.value}h ${m.value}m ${s.value}s',
+              'Current Streak: ${_d.value}d ${_h.value}h ${_m.value}m ${_s.value}s',
               style: const TextStyle(
                 fontSize: 30,
               ),
             ),
             Text(
-              'Last Streak: ${ld.value}d ${lh.value}h ${lm.value}m ${ls.value}s',
+              'Last Streak: ${_ld.value}d ${_lh.value}h ${_lm.value}m ${_ls.value}s',
               style: const TextStyle(fontSize: 30),
             ),
             Padding(
