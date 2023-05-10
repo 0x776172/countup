@@ -1,6 +1,10 @@
 import 'dart:async';
 
+import 'package:countup/custom/button_history.dart';
+import 'package:countup/data/date_controller.dart';
+import 'package:countup/design/color_style.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -9,111 +13,38 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with RestorationMixin<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> {
   late Timer timer;
-  late DateTime currTime;
-  final RestorableDateTime _setTime = RestorableDateTime(DateTime.now());
-  final RestorableInt _timeDiff = RestorableInt(0);
-  final RestorableInt _s = RestorableInt(0);
-  final RestorableInt _m = RestorableInt(0);
-  final RestorableInt _h = RestorableInt(0);
-  final RestorableInt _d = RestorableInt(0);
-  final RestorableInt _ls = RestorableInt(0);
-  final RestorableInt _lm = RestorableInt(0);
-  final RestorableInt _lh = RestorableInt(0);
-  final RestorableInt _ld = RestorableInt(0);
+  final DateController controller = Get.put(DateController());
+
+  final double _buttonMargin = 35;
+  final double _buttonTextMargin = 10;
+
+  final double _textSize = 20;
 
   @override
   void initState() {
     super.initState();
-    _setTime.value = DateTime.now();
+    controller.time = controller.getSavedTime('time');
+    controller.timeHistory = controller.getSavedTime('history');
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      _update();
+      controller.updateTime();
+      controller.saveTime('time', controller.time);
     });
-  }
-
-  void _update() {
-    setState(() {
-      _timeDiff.value = timeBetweenInSeconds(_setTime.value, DateTime.now());
-      var canIncrement = _timeDiff.value % 61 == 60;
-      _s.value = _timeDiff.value % 60;
-      if (canIncrement) {
-        if (_m.value < 59) {
-          _m.value += 1;
-          return;
-        }
-        _m.value = 0;
-        if (_h.value < 23) {
-          _h.value += 1;
-          return;
-        }
-        _h.value = 0;
-        _d.value += 1;
-      }
-    });
-  }
-
-  int timeBetweenInSeconds(DateTime from, DateTime to) {
-    var timeDiff = 0;
-    timeDiff = to.difference(from).inSeconds;
-
-    return timeDiff;
-  }
-
-  void _updateSetTime() {
-    setState(() {
-      _ls.value = _s.value;
-      _lm.value = _m.value;
-      _lh.value = _h.value;
-      _ld.value = _d.value;
-      _setTime.value = DateTime.now();
-      _m.value = _h.value = _d.value = 0;
-    });
-  }
-
-  @override
-  String get restorationId => 'countUpTime';
-
-  @override
-  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    registerForRestoration(_s, 'second');
-    registerForRestoration(_m, 'minute');
-    registerForRestoration(_h, 'hour');
-    registerForRestoration(_d, 'day');
-    registerForRestoration(_ls, 'lastSecond');
-    registerForRestoration(_lm, 'lastMinute');
-    registerForRestoration(_lh, 'lastHour');
-    registerForRestoration(_ld, 'lastDay');
-    registerForRestoration(_timeDiff, 'timeDiff');
-    registerForRestoration(_setTime, 'setTime');
-  }
-
-  @override
-  void dispose() {
-    _s.dispose();
-    _m.dispose();
-    _h.dispose();
-    _d.dispose();
-    _ls.dispose();
-    _lm.dispose();
-    _lh.dispose();
-    _ld.dispose();
-
-    _timeDiff.dispose();
-    _setTime.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: ColorStyle.screenBackgroundColor,
       appBar: AppBar(
+        backgroundColor: ColorStyle.baseColor,
+        elevation: 0,
         title: const Text('Count Your Time'),
         actions: [
           Container(
             margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-            child: const Icon(Icons.history),
+            child: const HistoryButton(),
           ),
         ],
       ),
@@ -122,31 +53,60 @@ class _HomeScreenState extends State<HomeScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              'Current Streak: ${_d.value}d ${_h.value}h ${_m.value}m ${_s.value}s',
-              style: const TextStyle(
-                fontSize: 30,
+            Obx(
+              () => Text(
+                'Current Streak: ${controller.time.day}d ${controller.time.hour}h ${controller.time.minute}m ${controller.time.second}s',
+                style: TextStyle(fontSize: _textSize),
               ),
             ),
-            Text(
-              'Last Streak: ${_ld.value}d ${_lh.value}h ${_lm.value}m ${_ls.value}s',
-              style: const TextStyle(fontSize: 30),
+            Obx(
+              () => Text(
+                'Last Streak: ${controller.timeHistory.day}d ${controller.timeHistory.hour}h ${controller.timeHistory.minute}m ${controller.timeHistory.second}s',
+                style: TextStyle(fontSize: _textSize),
+              ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(50.0),
+            Container(
+              padding: EdgeInsets.all(_buttonMargin),
               child: ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all(ColorStyle.baseColor),
+                ),
                 onPressed: () {
-                  _updateSetTime();
+                  // await showModalBottomSheet(
+                  //   context: context,
+                  //   builder: (context) => Container(
+                  //     margin: const EdgeInsets.all(5),
+                  //     child: Column(
+                  //       mainAxisSize: MainAxisSize.min,
+                  //       children: [
+                  //         const Text('data'),
+                  //         ElevatedButton(
+                  //             onPressed: () async {
+                  //               await showTimePicker(
+                  //                   context: context,
+                  //                   initialTime: TimeOfDay.now(),
+                  //                   initialEntryMode:
+                  //                       TimePickerEntryMode.dialOnly);
+                  //             },
+                  //             child: const Text('Test'))
+                  //       ],
+                  //     ),
+                  //   ),
+                  // );
+
+                  controller.resetTime();
+                  controller.saveTime('history', controller.timeHistory);
                 },
                 child: Container(
-                  margin: const EdgeInsets.all(10.0),
-                  child: const Text(
+                  margin: EdgeInsets.all(_buttonTextMargin),
+                  child: Text(
                     'Relapsed',
-                    style: TextStyle(fontSize: 20),
+                    style: TextStyle(fontSize: _textSize),
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
