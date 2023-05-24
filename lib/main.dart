@@ -1,4 +1,4 @@
-import 'package:countup/screen/home_screen.dart';
+import 'package:countup/screen/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 
@@ -12,10 +12,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      locale: Locale('id', 'ID'),
+    return MaterialApp(
+      locale: const Locale('id', 'ID'),
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+      home: MainScreen(),
     );
   }
 }

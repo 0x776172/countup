@@ -1,30 +1,25 @@
-import 'package:get/get.dart';
+import 'dart:convert';
 
 class TimeModel {
-  late RxInt day;
-  late RxInt hour;
-  late RxInt minute;
-  late RxInt second;
-  late Rx<DateTime> setTime;
+  late int day;
+  late int hour;
+  late int minute;
+  late int second;
+  late DateTime setTime;
 
   static TimeModel init = TimeModel(0, 0, 0, 0, DateTime.now());
 
-  TimeModel(int day, int hour, int minute, int second, DateTime setTime) {
-    this.day = day.obs;
-    this.hour = hour.obs;
-    this.minute = minute.obs;
-    this.second = second.obs;
-    this.setTime = setTime.obs;
-  }
+  TimeModel(this.day, this.hour, this.minute, this.second, this.setTime);
 
-  Map<String, dynamic> toJSON() {
-    return {
-      'day': day.value,
-      'hour': hour.value,
-      'minute': minute.value,
-      'second': second.value,
-      'setTime': setTime.value.toString(),
+  String toJSON() {
+    var res = {
+      'day': day,
+      'hour': hour,
+      'minute': minute,
+      'second': second,
+      'setTime': setTime.toString(),
     };
+    return jsonEncode(res);
   }
 
   factory TimeModel.fromJSON(Map<String, dynamic> json) {
